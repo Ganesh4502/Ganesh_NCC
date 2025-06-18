@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Test Management</title>
+    <link rel="stylesheet" href="admin_test.css">
+    <style>
+        .hidden { display: none; }
+        .modal { background: #fff; border: 1px solid #ccc; padding: 20px; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); z-index: 10; max-height: 90vh; overflow-y: auto; }
+        .overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index: 5; }
+        header { background: #222; color: #fff; padding: 20px 0; text-align: center; margin-bottom: 30px; }
+        /* Add scroll to question list */
+        #questionList {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid #eee;
+            padding: 8px;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logos">
+            <div style="display: flex; align-items: center;">
+                <a href="admin_index.html"><img src="images\logo.jpg" style="max-width: 80px; height: auto; margin-right: 16px;"></a>
+                <h3 style="margin: 0;">NCC</h3>
+            </div>
+        <h1>Admin Portal</h1>
+        <p>Welcome to the Admin Test Management System</p>
+        <div id="testStats" style="margin-top:15px;">
+            <span>Total Tests: <strong id="totalTests">0</strong></span> |
+            <span>Completed: <strong id="completedTests">0</strong></span> |
+            <span>Upcoming: <strong id="upcomingTests">0</strong></span> |
+            <span>Ongoing: <strong id="ongoingTests">0</strong></span>
+        </div>
+    </header>
+    <script>
+        function updateTestStats() {
+            const now = new Date();
+            let total = tests.length;
+            let completed = 0, upcoming = 0, ongoing = 0;
+            tests.forEach(test => {
+                const start = new Date(test.startTime);
+                const end = new Date(test.endTime);
+                if (end < now) completed++;
+                else if (start > now) upcoming++;
+                else if (start <= now && end >= now) ongoing++;
+            });
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('completedTests').textContent = completed;
+            document.getElementById('upcomingTests').textContent = upcoming;
+            document.getElementById('ongoingTests').textContent = ongoing;
+        }
+        // Call after every test change
+        const origRenderTests = renderTests;
+        renderTests = function() {
+            origRenderTests();
+            updateTestStats();
+        };
+        // Initial stats update
+        document.addEventListener('DOMContentLoaded', updateTestStats);
+    </script>
+
+    <h1>Admin Test Management</h1>
+
+    <button id="showAddTestBtn" class="btn">Add Test</button>
+
+    <!-- Modal for adding/editing test and questions -->
+    <div id="testModal" class="modal hidden">
+        <h2 id="testModalTitle">Add New Test</h2>
+        <form id="addTestForm">
+            <label>Test Description:
+                <textarea id="testDescription" required></textarea>
+            </label>
+            <label>Start Time:
+                <input type="datetime-local" id="testStartTime" required>
+            </label>
+            <label>End Time:
+                <input type="datetime-local" id="testEndTime" required>
+            </label>
+            <button type="submit" class="btn" id="saveTestBtn">Save Test</button>
+            <button type="button" class="btn" onclick="closeTestModal()">Cancel</button>
+        </form>
+        <div id="questionSection" class="hidden">
+            <h3>Add Questions</h3>
+            <form id="addQuestionForm">
+                <label>Question Type:
+                    <select id="questionType" required>
+                        <option value="objective">Objective</option>
+                        <option value="descriptive">Descriptive</option>
+                    </select>
+                </label>
+                <label>Question Text:
+                    <textarea id="questionText" required></textarea>
+                </label>
+                <div id="objectiveOptions">
+                    <label>Option 1: <input type="text" class="option-input" id="option1"></label>
+                    <label>Option 2: <input type="text" class="option-input" id="option2"></label>
+                    <label>Option 3: <input type="text" class="option-input" id="option3"></label>
+                    <label>Option 4: <input type="text" class="option-input" id="option4"></label>
+                </div>
+                <label>Marks:
+                    <input type="number" id="questionMarks" min="1" required>
+                </label>
+                <button type="submit" class="btn">Add Question</button>
+            </form>
+            <div class="question-list" id="questionList"></div>
+        </div>
+    </div>
+    <div id="modalOverlay" class="overlay hidden"></div>
+
+    <h2>Manage Tests</h2>
+    <div class="test-list" id="testList"></div>
+
+    <script>
+        let tests = [];
+        let editingTestIndex = null;
+        let tempQuestions = [];
+
+        function showTestModal(isEdit = false) {
+            document.getElementById('testModal').classList.remove('hidden');
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.getElementById('questionSection').classList.add('hidden');
+            document.getElementById('addTestForm').reset();
+            tempQuestions = [];
+            renderQuestions();
+            if (isEdit) {
+                document.getElementById('testModalTitle').textContent = 'Edit Test';
+                document.getElementById('saveTestBtn').textContent = 'Update Test';
+                const test = tests[editingTestIndex];
+                document.getElementById('testDescription').value = test.description;
+                document.getElementById('testStartTime').value = test.startTime;
+                document.getElementById('testEndTime').value = test.endTime;
+                tempQuestions = JSON.parse(JSON.stringify(test.questions));
+                document.getElementById('questionSection').classList.remove('hidden');
+                renderQuestions();
+            } else {
+                document.getElementById('testModalTitle').textContent = 'Add New Test';
+                document.getElementById('saveTestBtn').textContent = 'Save Test';
+            }
+        }
+
+        function closeTestModal() {
+            document.getElementById('testModal').classList.add('hidden');
+            document.getElementById('modalOverlay').classList.add('hidden');
+            editingTestIndex = null;
+        }
+
+        document.getElementById('showAddTestBtn').onclick = function() {
+            editingTestIndex = null;
+            showTestModal(false);
+        };
+
+        document.getElementById('addTestForm').onsubmit = function(e) {
+            const description = document.getElementById('testDescription').value.trim();
+            const startTime = document.getElementById('testStartTime').value;
+            const endTime = document.getElementById('testEndTime').value;
+            if (description && startTime && endTime) {
+                if (editingTestIndex === null) {
+                    // If question section is hidden, show it and prevent submit
+                    if (document.getElementById('questionSection').classList.contains('hidden')) {
+                        e.preventDefault();
+                        tempQuestions = [];
+                        document.getElementById('questionSection').classList.remove('hidden');
+                        renderQuestions();
+                        return;
+                    }
+                    // Otherwise, save the new test
+                    if (tempQuestions.length === 0) {
+                        e.preventDefault();
+                        alert('Please add at least one question.');
+                        return;
+                    }
+                    tests.push({
+                        description,
+                        startTime,
+                        endTime,
+                        questions: tempQuestions
+                    });
+                    closeTestModal();
+                    renderTests();
+                    e.preventDefault();
+                } else {
+                    // Update test
+                    tests[editingTestIndex] = {
+                        description,
+                        startTime,
+                        endTime,
+                        questions: tempQuestions
+                    };
+                    closeTestModal();
+                    renderTests();
+                    e.preventDefault();
+                }
+            } else {
+                e.preventDefault();
+            }
+        };
+
+        // Add question logic
+        document.getElementById('addQuestionForm').onsubmit = function(e) {
+            e.preventDefault();
+            const type = document.getElementById('questionType').value;
+            const text = document.getElementById('questionText').value.trim();
+            const marks = parseInt(document.getElementById('questionMarks').value, 10);
+            let question = { type, text, marks };
+            if (type === 'objective') {
+                const options = [
+                    document.getElementById('option1').value.trim(),
+                    document.getElementById('option2').value.trim(),
+                    document.getElementById('option3').value.trim(),
+                    document.getElementById('option4').value.trim()
+                ];
+                if (options.some(opt => !opt)) {
+                    alert('All options are required for objective questions.');
+                    return;
+                }
+                question.options = options;
+            }
+            tempQuestions.push(question);
+            this.reset();
+            document.getElementById('option1').value = '';
+            document.getElementById('option2').value = '';
+            document.getElementById('option3').value = '';
+            document.getElementById('option4').value = '';
+            // Ensure objectiveOptions is shown/hidden based on questionType after reset
+            if (document.getElementById('questionType').value === 'objective') {
+                document.getElementById('objectiveOptions').style.display = 'block';
+            } else {
+                document.getElementById('objectiveOptions').style.display = 'none';
+            }
+            renderQuestions();
+        };
+
+        function renderQuestions() {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = '';
+            tempQuestions.forEach((q, idx) => {
+            const div = document.createElement('div');
+            div.className = 'question-item';
+            div.innerHTML = `
+                <strong>Type:</strong> ${q.type}<br>
+                <strong>Question:</strong> ${q.text}<br>
+                ${q.type === 'objective' ? `<strong>Options:</strong> <ol>${q.options.map(opt => `<li>${opt}</li>`).join('')}</ol>` : ''}
+                <strong>Marks:</strong> ${q.marks}<br>
+                <button class="btn" onclick="editQuestion(${idx})">Edit</button>
+                <button class="btn" onclick="deleteQuestion(${idx})">Delete Question</button>
+            `;
+            questionList.appendChild(div);
+            });
+        }
+
+        window.editQuestion = function(idx) {
+            const q = tempQuestions[idx];
+            document.getElementById('questionType').value = q.type;
+            document.getElementById('questionText').value = q.text;
+            document.getElementById('questionMarks').value = q.marks;
+            if (q.type === 'objective') {
+            document.getElementById('objectiveOptions').style.display = 'block';
+            document.getElementById('option1').value = q.options[0] || '';
+            document.getElementById('option2').value = q.options[1] || '';
+            document.getElementById('option3').value = q.options[2] || '';
+            document.getElementById('option4').value = q.options[3] || '';
+            } else {
+            document.getElementById('objectiveOptions').style.display = 'none';
+            document.getElementById('option1').value = '';
+            document.getElementById('option2').value = '';
+            document.getElementById('option3').value = '';
+            document.getElementById('option4').value = '';
+            }
+            // Remove the question so that submitting will update it
+            tempQuestions.splice(idx, 1);
+            renderQuestions();
+        }
+
+        window.deleteQuestion = function(idx) {
+            if (confirm('Delete this question?')) {
+                tempQuestions.splice(idx, 1);
+                renderQuestions();
+            }
+        };
+
+        // Save test with questions
+        document.getElementById('questionSection').addEventListener('submit', function(e) {
+            if (e.target === document.getElementById('addQuestionForm')) return;
+            e.preventDefault();
+            const description = document.getElementById('testDescription').value.trim();
+            const startTime = document.getElementById('testStartTime').value;
+            const endTime = document.getElementById('testEndTime').value;
+            if (!description || !startTime || !endTime) return;
+            if (tempQuestions.length === 0) {
+                alert('Please add at least one question.');
+                return;
+            }
+            if (editingTestIndex === null) {
+                tests.push({
+                    description,
+                    startTime,
+                    endTime,
+                    questions: tempQuestions
+                });
+            } else {
+                tests[editingTestIndex] = {
+                    description,
+                    startTime,
+                    endTime,
+                    questions: tempQuestions
+                };
+            }
+            closeTestModal();
+            renderTests();
+        });
+
+        function renderTests() {
+            const testList = document.getElementById('testList');
+            testList.innerHTML = '';
+            tests.forEach((test, idx) => {
+                const div = document.createElement('div');
+                div.className = 'test-item';
+                div.innerHTML = `
+                    <strong>Description:</strong> ${test.description}<br>
+                    <strong>Start:</strong> ${test.startTime}<br>
+                    <strong>End:</strong> ${test.endTime}<br>
+                    <button class="btn" onclick="editTest(${idx})">Edit</button>
+                    <button class="btn" onclick="deleteTest(${idx})">Delete</button>
+                `;
+                testList.appendChild(div);
+            });
+        }
+
+        window.editTest = function(idx) {
+            editingTestIndex = idx;
+            showTestModal(true);
+        };
+
+        window.deleteTest = function(idx) {
+            if (confirm('Delete this test?')) {
+                tests.splice(idx, 1);
+                renderTests();
+            }
+        };
+
+        // Question type toggle
+        document.getElementById('questionType').onchange = function() {
+            document.getElementById('objectiveOptions').style.display = this.value === 'objective' ? 'block' : 'none';
+            if (this.value !== 'objective') {
+                document.getElementById('option1').value = '';
+                document.getElementById('option2').value = '';
+                document.getElementById('option3').value = '';
+                document.getElementById('option4').value = '';
+            }
+        };
+        document.getElementById('objectiveOptions').style.display = 'block';
+
+        // Overlay click closes modal
+        document.getElementById('modalOverlay').onclick = closeTestModal;
+
+        // Initial render
+        renderTests();
+    </script>
+</body>
+</html>

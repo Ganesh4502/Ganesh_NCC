@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Page</title>
+    <link rel="stylesheet" href="test.css">
+</head>
+<body>
+    <h1>Welcome to the Test Page</h1>
+    <form id="quizForm"></form>
+    <button type="submit" form="quizForm">Submit</button>
+
+    <script>
+        const questions = [
+            {
+                question: "1. What is 2 + 2?",
+                name: "q1",
+                options: ["3", "4", "5"]
+            },
+            {
+                question: "2. What is the capital of France?",
+                name: "q2",
+                options: ["London", "Paris", "Berlin"]
+            }
+        ];
+
+        const form = document.getElementById('quizForm');
+
+        questions.forEach((q, idx) => {
+            const label = document.createElement('label');
+            label.textContent = q.question;
+            form.appendChild(label);
+            form.appendChild(document.createElement('br'));
+
+            q.options.forEach(opt => {
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = q.name;
+                input.value = opt;
+                form.appendChild(input);
+                form.appendChild(document.createTextNode(' ' + opt));
+                form.appendChild(document.createElement('br'));
+            });
+
+            form.appendChild(document.createElement('br'));
+        });
+    </script>
+</body>
+</html>

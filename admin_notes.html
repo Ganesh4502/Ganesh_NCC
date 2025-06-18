@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Test Management</title>
+    <link rel="stylesheet" href="admin_notes.css">
+    <style>
+        .hidden { display: none; }
+        .modal { background: #fff; border: 1px solid #ccc; padding: 20px; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); z-index: 10; max-height: 90vh; overflow-y: auto; }
+        .overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index: 5; }
+        header { background: #222; color: #fff; padding: 20px 0; text-align: center; margin-bottom: 30px; }
+        #questionList {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border: 1px solid #eee;
+            padding: 8px;
+            background: #fafafa;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logos">
+            <div style="display: flex; align-items: center;"></div>
+                <a href="admin_index.html"><img src="images\logo.jpg" style="max-width: 80px; height: auto; margin-right: 16px;"></a>
+                <h3 style="margin: 0;">NCC</h3>
+            </div>
+        <h1>Admin Portal</h1>
+        <p>Welcome to the Admin Notes Management System</p>
+    </header>
+    <main style="max-width: 700px; margin: 0 auto;">
+        <section>
+            <h2>Add New Note</h2>
+            <form id="addNoteForm" enctype="multipart/form-data">
+                <label>
+                    Note Name:
+                    <input type="text" id="noteName" required>
+                </label>
+                <label>
+                    Note Category:
+                    <input type="text" id="noteCategory" required>
+                </label>
+                <label>
+                    Note Type:
+                    <select id="noteType" required>
+                        <option value="jpeg">JPEG</option>
+                        <option value="jpg">JPG</option>
+                        <option value="png">PNG</option>
+                        <option value="pdf">PDF</option>
+                        <option value="doc">DOC</option>
+                        <option value="docx">DOCX</option>
+                        <option value="txt">TXT</option>
+                    </select>
+                </label>
+                <label>
+                    Upload File:
+                    <input type="file" id="noteFile" accept=".jpeg,.jpg,.png,.pdf,.doc,.docx,.txt" required>
+                </label>
+                <button type="submit">Add Note</button>
+            </form>
+        </section>
+        <hr>
+        <section>
+            <h2>Notes by Category</h2>
+            <div id="notesByCategory"></div>
+        </section>
+    </main>
+    <script>
+        // Helper to get notes from localStorage
+        function getNotes() {
+            return JSON.parse(localStorage.getItem('adminNotes') || '{}');
+        }
+        // Helper to save notes to localStorage
+        function saveNotes(notes) {
+            localStorage.setItem('adminNotes', JSON.stringify(notes));
+        }
+        // Render notes grouped by category
+        function renderNotes() {
+            const notes = getNotes();
+            const container = document.getElementById('notesByCategory');
+            container.innerHTML = '';
+            // Group notes by category
+            const categoryMap = {};
+            Object.keys(notes).forEach(type => {
+                notes[type].forEach((note, idx) => {
+                    const cat = note.category || "Uncategorized";
+                    if (!categoryMap[cat]) categoryMap[cat] = [];
+                    // Store type and idx for delete
+                    categoryMap[cat].push({ ...note, type, idx });
+                });
+            });
+            Object.keys(categoryMap).forEach(category => {
+                const section = document.createElement('div');
+                section.style.marginBottom = '20px';
+                section.innerHTML = `<h3>${category}</h3>`;
+                const list = document.createElement('ul');
+                categoryMap[category].forEach((note, idx) => {
+                    let fileLink = '';
+                    if (note.fileData) {
+                        fileLink = `<a href="${note.fileData}" download="${note.name}.${note.type}">Download</a>`;
+                    }
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <strong>${note.name}</strong> (${note.type.toUpperCase()}) 
+                        ${fileLink}
+                        <button data-type="${note.type}" data-idx="${note.idx}" class="deleteBtn">Delete</button>
+                    `;
+                    list.appendChild(li);
+                });
+                section.appendChild(list);
+                container.appendChild(section);
+            });
+        }
+        // Handle add note
+        document.getElementById('addNoteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('noteName').value.trim();
+            const type = document.getElementById('noteType').value;
+            const category = document.getElementById('noteCategory').value;
+            const fileInput = document.getElementById('noteFile');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Check file extension matches selected type
+            const fileExt = file.name.split('.').pop().toLowerCase();
+            if (fileExt !== type) {
+            alert(`Selected file type (${fileExt}) does not match the chosen type (${type.toUpperCase()}).`);
+            return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+            const notes = getNotes();
+            if (!notes[type]) notes[type] = [];
+            notes[type].push({
+                name: name,
+                category: category,
+                fileData: evt.target.result
+            });
+            saveNotes(notes);
+            renderNotes();
+            document.getElementById('addNoteForm').reset();
+            };
+            reader.readAsDataURL(file);
+        });
+        // Handle delete note
+        document.getElementById('notesByCategory').addEventListener('click', function(e) {
+            if (e.target.classList.contains('deleteBtn')) {
+            const type = e.target.getAttribute('data-type');
+            const idx = parseInt(e.target.getAttribute('data-idx'));
+            const notes = getNotes();
+            notes[type].splice(idx, 1);
+            if (notes[type].length === 0) delete notes[type];
+            saveNotes(notes);
+            renderNotes();
+            }
+        });
+        // Initial render
+        renderNotes();
+    </script>
+</body>
+</html>

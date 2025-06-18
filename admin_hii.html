@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NCC Cadets - GMRIT</title>
+    <link rel="stylesheet" href="admin_hii.css">
+    <style>
+        .admin-ops {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .admin-ops button {
+            padding: 4px 10px;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        #addEventForm {
+            display: none;
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+        #addEventForm input, #addEventForm textarea, #addEventForm select {
+            width: 100%;
+            margin-bottom: 0.7rem;
+            padding: 6px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="logos" style="display: flex; align-items: center;">
+        <a href="index.html"><img src="images\logo.jpg" style="max-width: 80px; height: auto; margin-right: 16px;"></a>
+        <h3 style="margin: 0;">NCC</h3>
+    </div>
+    <nav>
+        <a href="admin_index.html">Home</a>
+        <a href="admin_About.html">About Us</a>
+        <a href="admin_team.html">Team</a>
+        <a href="admin_hii.html">Events</a>
+        <a href="admin_staff.html">Staff</a>
+    </nav>
+    <button class="login-btn" onclick="window.location.href='login.html'">Login</button>
+</header>
+<main>
+    <section>
+        <button onclick="showAddEventForm()">+ Add Event</button>
+        <form id="addEventForm" onsubmit="addEvent(event)">
+            <h3>Add New Event</h3>
+            <input type="text" id="eventTitle" placeholder="Event Title" required>
+            <select id="eventStatus" required>
+                <option value="">Status</option>
+                <option value="completed">Completed</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="upcoming">Upcoming</option>
+            </select>
+            <input type="text" id="eventStart" placeholder="Start (e.g. 23rd November 2023, 8:00 AM)" required>
+            <input type="text" id="eventEnd" placeholder="End (e.g. 23rd November 2023, 12:00 PM)" required>
+            <textarea id="eventDesc" placeholder="Event Description" required></textarea>
+            <input type="text" id="eventImg" placeholder="Image URL (optional)">
+            <button type="submit">Add Event</button>
+            <button type="button" onclick="hideAddEventForm()">Cancel</button>
+        </form>
+    </section>
+    <section class="events-list" id="eventsList">
+        <h2 style="grid-column: 1 / -1; text-align: center; margin-bottom: 2rem;">Upcoming & Past Events</h2>
+
+        <article class="event-card">
+            <div class="admin-ops">
+                <button onclick="editEvent(this)">Edit</button>
+                <button onclick="deleteEvent(this)">Delete</button>
+            </div>
+            <img src="images/ncc-day-parade.jpg" alt="Annual NCC Day Parade" style="width:100%; max-width:400px; display:block; margin: 0 auto 1rem auto;">
+            <h3>Annual NCC Day Parade</h3>
+            <p>Status: <span class="completed">Completed</span></p>
+            <p class="event-date">Start: 23rd November 2023, 8:00 AM</p>
+            <p class="event-date">End: 23rd November 2023, 12:00 PM</p>
+            <p class="event-desc">
+                The Annual NCC Day Parade was conducted at GMRIT grounds, showcasing the discipline and unity of our cadets. The event included a ceremonial march-past, cultural performances, and prize distribution. Distinguished guests from the college administration and local authorities attended the event, appreciating the efforts and dedication of the cadets. The parade concluded with a motivational speech by the commanding officer, inspiring cadets to uphold the values of the NCC.
+            </p>
+        </article>
+
+        <!-- Repeat admin-ops for each event-card below -->
+        <article class="event-card">
+            <div class="admin-ops">
+                <button onclick="editEvent(this)">Edit</button>
+                <button onclick="deleteEvent(this)">Delete</button>
+            </div>
+            <h3>Blood Donation Camp</h3>
+            <p>Status: <span class="completed">Completed</span></p>
+            <p class="event-date">Start: 15th August 2023, 10:00 AM</p>
+            <p class="event-date">End: 15th August 2023, 2:00 PM</p>
+            <p class="event-desc">
+                On Independence Day, NCC cadets organized a blood donation camp in collaboration with the local Red Cross Society, encouraging students and staff to contribute to a noble cause. The camp saw enthusiastic participation, with over 100 units of blood collected. Medical professionals provided guidance and ensured the safety of all donors. The event helped raise awareness about the importance of regular blood donation and saving lives.
+            </p>
+        </article>
+
+        <article class="event-card">
+            <div class="admin-ops">
+                <button onclick="editEvent(this)">Edit</button>
+                <button onclick="deleteEvent(this)">Delete</button>
+            </div>
+            <h3>Swachh Bharat Abhiyan Drive</h3>
+            <p>Status: <span class="completed">Completed</span></p>
+            <p class="event-date">Start: 2nd October 2023, 9:00 AM</p>
+            <p class="event-date">End: 2nd October 2023, 11:00 AM</p>
+            <p class="event-desc">
+                As part of Gandhi Jayanti celebrations, cadets participated in a campus-wide cleanliness drive, spreading awareness about hygiene and environmental responsibility. The drive included cleaning classrooms, corridors, and outdoor spaces, as well as installing dustbins at strategic locations. Cadets also conducted a poster campaign to educate fellow students about the importance of maintaining a clean environment.
+            </p>
+        </article>
+
+        <!-- Repeat for all other event-cards... -->
+        <!-- ... -->
+        <article class="event-card">
+            <div class="admin-ops">
+                <button onclick="editEvent(this)">Edit</button>
+                <button onclick="deleteEvent(this)">Delete</button>
+            </div>
+            <h3>Clean Water Awareness Campaign</h3>
+            <p>Status: <span class="upcoming">Upcoming</span></p>
+            <p class="event-date">Start: 22nd March 2025, 10:00 AM</p>
+            <p class="event-date">End: 22nd March 2025, 1:00 PM</p>
+            <p class="event-desc"></p>
+        </article>
+    </section>
+</main>
+<script>
+    // Show and hide the Add Event form
+    function showAddEventForm() {
+        document.getElementById('addEventForm').style.display = 'block';
+    }
+    function hideAddEventForm() {
+        document.getElementById('addEventForm').reset();
+        document.getElementById('addEventForm').style.display = 'none';
+    }
+
+    // Helper: Sync events to hii.html via localStorage
+    function syncEventsToHii() {
+        const events = [];
+        document.querySelectorAll('#eventsList .event-card').forEach(card => {
+            const title = card.querySelector('h3')?.innerText || '';
+            const status = card.querySelector('span')?.className || '';
+            const start = card.querySelectorAll('.event-date')[0]?.innerText.replace('Start: ', '') || '';
+            const end = card.querySelectorAll('.event-date')[1]?.innerText.replace('End: ', '') || '';
+            const desc = card.querySelector('.event-desc')?.innerText || '';
+            const imgTag = card.querySelector('img');
+            const img = imgTag ? imgTag.src : '';
+            events.push({ title, status, start, end, desc, img });
+        });
+        localStorage.setItem('ncc_events_sync', JSON.stringify(events));
+    }
+
+    // Add Event
+    function addEvent(e) {
+        e.preventDefault();
+        const title = document.getElementById('eventTitle').value;
+        const status = document.getElementById('eventStatus').value;
+        const start = document.getElementById('eventStart').value;
+        const end = document.getElementById('eventEnd').value;
+        const desc = document.getElementById('eventDesc').value;
+        const img = document.getElementById('eventImg').value;
+
+        const article = document.createElement('article');
+        article.className = 'event-card';
+        article.innerHTML = `
+            <div class="admin-ops">
+                <button onclick="editEvent(this)">Edit</button>
+                <button onclick="deleteEvent(this)">Delete</button>
+            </div>
+            ${img ? `<img src="${img}" alt="${title}" style="width:100%; max-width:400px; display:block; margin: 0 auto 1rem auto;">` : ''}
+            <h3>${title}</h3>
+            <p>Status: <span class="${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></p>
+            <p class="event-date">Start: ${start}</p>
+            <p class="event-date">End: ${end}</p>
+            <p class="event-desc">${desc}</p>
+        `;
+        document.getElementById('eventsList').appendChild(article);
+        hideAddEventForm();
+        syncEventsToHii();
+    }
+
+    // Delete Event
+    function deleteEvent(btn) {
+        if (confirm('Are you sure you want to delete this event?')) {
+            btn.closest('.event-card').remove();
+            syncEventsToHii();
+        }
+    }
+
+    // Edit Event
+    function editEvent(btn) {
+        const card = btn.closest('.event-card');
+        const title = card.querySelector('h3').innerText;
+        const status = card.querySelector('span').className;
+        const start = card.querySelectorAll('.event-date')[0].innerText.replace('Start: ', '');
+        const end = card.querySelectorAll('.event-date')[1].innerText.replace('End: ', '');
+        const desc = card.querySelector('.event-desc').innerText;
+        const imgTag = card.querySelector('img');
+        const img = imgTag ? imgTag.src : '';
+
+        document.getElementById('eventTitle').value = title;
+        document.getElementById('eventStatus').value = status;
+        document.getElementById('eventStart').value = start;
+        document.getElementById('eventEnd').value = end;
+        document.getElementById('eventDesc').value = desc;
+        document.getElementById('eventImg').value = img;
+
+        showAddEventForm();
+
+        // Remove the old event on submit and add the updated one
+        document.getElementById('addEventForm').onsubmit = function(e) {
+            e.preventDefault();
+            card.remove();
+            addEvent(e);
+            // Restore default onsubmit
+            document.getElementById('addEventForm').onsubmit = addEvent;
+            syncEventsToHii();
+        };
+    }
+
+    // On page load, sync from localStorage if available
+    window.addEventListener('DOMContentLoaded', function() {
+        // Only sync if not already on hii.html
+        if (!window.location.pathname.endsWith('hii.html')) {
+            const events = localStorage.getItem('ncc_events_sync');
+            if (events) {
+                // Optionally, you can trigger a reload or notify the user
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>NCC Cadet Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="login.css">
+    <script src="login.js"></script>
+</head>
+<body>
+    
+    <div class="login-container">
+        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <img src="images\logo.jpg" style="max-width: 80px; height: auto; margin-right: 16px;">
+            <h2 style="margin: 0;">NCC Cadet Registration</h2>
+        </div>
+        <form action="/register" method="post" onsubmit="registerUser(event)">
+            <label for="FullName">Full Name:</label>
+            <input type="text" id="FullName" name="FullName" required><br><br>
+
+            <label>Gender:</label><br>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <input type="radio" id="male" name="option" value="Male" required>
+                <label for="male">Male</label>
+                <input type="radio" id="female" name="option" value="Female">
+                <label for="female">Female</label>
+                <input type="radio" id="other" name="option" value="Other">
+                <label for="other">Other</label>
+            </div>
+            <br><br>
+
+            <label for="dateOfBirth">Date of Birth:</label>
+            <input type="date" id="dateOfBirth" name="dateOfBirth" required><br><br>
+
+            <label for="mobileNumber">Mobile Number:</label>
+            <input type="tel" id="mobileNumber" name="mobileNumber" required pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number"><br><br>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+            
+
+            <label>Select Option:</label><br>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <input type="radio" id="sd" name="option" value="SD" required>
+                <label for="sd">SD</label>
+                <input type="radio" id="sw" name="option" value="SW">
+                <label for="sw">SW</label>
+            </div>
+            <br><br>
+            
+            <label for="regtNumber">Regt Number:</label>
+            <input type="text" id="regtNumber" name="regtNumber" required><br><br>
+
+            <!-- Password Field -->
+            <div class="password-container">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <span class="toggle-icon" onclick="togglePassword('password')" style="cursor:pointer; margin-left:8px;">👁️</span>
+            </div>
+            <br><br>
+
+            <!-- Confirm Password Field -->
+            <div class="confirm-password-container">
+                <label for="confirmPassword">Confirm Password:</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                <span class="toggle-icon" onclick="togglePassword('confirmPassword')" style="cursor:pointer; margin-left:8px;">👁️</span>
+            </div>
+            <br><br>
+
+
+
+
+            <script>
+            function togglePassword() {
+                var pwd = document.getElementById("password");
+                pwd.type = pwd.type === "password" ? "text" : "password";
+            }
+            
+            function registerUser(event) {
+                event.preventDefault();
+
+                var password = document.getElementById("password").value;
+                var confirmPassword = document.getElementById("confirmPassword").value;
+
+                if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return false;
+                }
+                alert("Registration successful!");
+    
+            }
+            function togglePassword(fieldId) {
+                const input = document.getElementById(fieldId);
+                input.type = input.type === "password" ? "text" : "password";
+            }
+            </script>
+            
+            <button type="submit">Register</button>
+            <p>Already have an account? <a href="login.html" style="color:black;">Login here</a></p>
+        </form>
+    </div>
+</body>
+</html>

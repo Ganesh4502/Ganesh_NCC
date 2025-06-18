@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>NCC Cadet Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="login.css">
+    <script src="login.js"></script>
+</head>
+<body>
+    
+    <div class="login-container">
+        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+            <img src="images\logo.jpg" style="max-width: 80px; height: auto; margin-right: 16px;">
+            <h2 style="margin: 0;">NCC Cadet Login</h2>
+        </div>
+        <form action="/login" method="post" onsubmit="Login(event)">
+            <label>Select Option:</label><br>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <input type="radio" id="sd" name="option" value="SD" required>
+                <label for="sd">SD</label>
+                <input type="radio" id="sw" name="option" value="SW">
+                <label for="sw">SW</label>
+            </div>
+            <br><br>
+            
+            <label for="regtNumber">Regt Number:</label>
+            <input type="text" id="regtNumber" name="regtNumber" required><br><br>
+
+            <div class="password-container"></div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required> 
+            <span class="toggle-icon" onclick="togglePassword()" id="toggleIcon" style="cursor:pointer; margin-left:8px;">👁️</span>
+            <br><br>
+
+            <script>
+            function togglePassword() {
+                var pwd = document.getElementById("password");
+                pwd.type = pwd.type === "password" ? "text" : "password";
+            }
+            function Login(event) {
+                event.preventDefault();
+                var regtNumber = document.getElementById("regtNumber").value.trim();
+                var password = document.getElementById("password").value;
+
+                // Example admin credentials
+                if (regtNumber === "AP2023SDA016443" && password === "NCC_AP2023SDA016443") {
+                    window.location.href = "admin_index.html";
+                } else if(regtNumber === "AP2023SDA016441" && password === "NCC_AP2023SDA016441"){
+                    window.location.href = "index.html";
+                }else{
+                    alert("Invalid Regt Number or Password");
+                }
+            }
+            </script>
+            
+            <button type="submit">Login</button>
+            <p>Don't have an account? <a href="register.html" style="color:black;">Register here</a></p>
+        </form>
+    </div>
+</body>
+</html>
