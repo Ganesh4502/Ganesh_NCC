@@ -38,6 +38,9 @@
             function togglePassword() {
                 var pwd = document.getElementById("password");
                 pwd.type = pwd.type === "password" ? "text" : "password";
+                const icon = document.getElementById("toggleIcon");
+                icon.textContent = pwd.type === "password" ? "👁️" : "🙈";
+
             }
             function Login(event) {
                 event.preventDefault();
