@@ -9,7 +9,7 @@
     <header>
         <div class="logos">
             <div style="display: flex; align-items: center;">
-                <a href="index.html"><img src="images/logo.jpg" style="max-width: 80px; height: auto; margin-right: 16px;"></a>
+                <a href="index.html"><img src="images\logo.jpg" style="max-width: 80px; height: auto; margin-right: 16px;"></a>
                 <h3 style="margin: 0;">NCC</h3>
             </div>
         </div>
@@ -26,120 +26,8 @@
         <section class="team-section"></section>
         <h6>.</h6>
         <h1><u>Appoinments list </u></h1>
-        <!-- Admin Add Appointment Form -->
-        <section class="admin-add-appointment" style="margin-bottom: 32px; border: 1px solid #ccc; padding: 16px; border-radius: 8px; max-width: 600px;">
-            <h2>Add Appointment Details</h2>
-            <form id="addAppointmentForm">
-            <label for="year">Year:</label>
-            <input type="number" id="year" name="year" required min="2000" max="2100" style="margin-bottom: 8px;"><br>
-            <div id="cadetFields">
-                <div class="cadet-entry" style="margin-bottom: 8px;">
-                <input type="text" name="cadetName[]" placeholder="Cadet Name" required>
-                <input type="text" name="cadetRank[]" placeholder="Rank" required>
-                <input type="text" name="cadetPhone[]" placeholder="Phone" required>
-                <input type="text" name="cadetEmail[]" placeholder="Email" required>
-                <input type="text" name="cadetDescription[]" placeholder="Cadet Description" required>
-                </div>
-            </div>
-            <button type="button" onclick="addCadetField()">Add Another Cadet</button>
-            <button type="submit">Add Appointment</button>
-            </form>
-        </section>
-        <script>
-            // Save appointments to localStorage
-            function saveAppointments() {
-            const teamList = document.getElementById('teamList');
-            const members = Array.from(teamList.children).map(div => {
-                const year = div.querySelector('h3') ? div.querySelector('h3').innerText : '';
-                const lis = div.querySelectorAll('li');
-                const cadets = Array.from(lis).map(li => {
-                    const nameMatch = li.innerHTML.match(/Cadet Name:<\/strong>\s*([^<]*)/);
-                    const rankMatch = li.innerHTML.match(/Rank:<\/strong>\s*([^<]*)/);
-                    const phoneMatch = li.innerHTML.match(/Phone:<\/strong>\s*([^<]*)/);
-                    const emailMatch = li.innerHTML.match(/Email:<\/strong>\s*([^<]*)/);
-                    const descMatch = li.innerHTML.match(/Cadet Description:<\/strong>\s*([^<]*)/);
-                    return {
-                        name: nameMatch ? nameMatch[1].trim() : '',
-                        rank: rankMatch ? rankMatch[1].trim() : '',
-                        phone: phoneMatch ? phoneMatch[1].trim() : '',
-                        email: emailMatch ? emailMatch[1].trim() : '',
-                        description: descMatch ? descMatch[1].trim() : ''
-                    };
-                });
-                return { year, cadets };
-            });
-            localStorage.setItem('appointments', JSON.stringify(members));
-            }
-
-            // Load appointments from localStorage
-            function loadAppointments() {
-            const data = localStorage.getItem('appointments');
-            if (!data) return;
-            const members = JSON.parse(data);
-            const teamList = document.getElementById('teamList');
-            teamList.innerHTML = '';
-            members.forEach(member => {
-                let ul = '<ul>';
-                member.cadets.forEach(cadet => {
-                ul += `<li><strong>Cadet Name:</strong> ${cadet.name}<br><strong>Rank:</strong> ${cadet.rank}</li>`;
-                });
-                ul += '</ul>';
-                const div = document.createElement('div');
-                div.className = 'team-member';
-                div.style.border = 'none';
-                div.innerHTML = `<h3>${member.year}</h3>${ul}`;
-                teamList.appendChild(div);
-            });
-            }
-
-            // Update form submit to save to localStorage
-            document.getElementById('addAppointmentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const year = document.getElementById('year').value;
-            const names = Array.from(document.getElementsByName('cadetName[]')).map(input => input.value);
-            const ranks = Array.from(document.getElementsByName('cadetRank[]')).map(input => input.value);
-
-            let ul = '<ul>';
-            for (let i = 0; i < names.length; i++) {
-                ul += `<li><strong>Cadet Name:</strong> ${names[i]}<br><strong>Rank:</strong> ${ranks[i]}</li>`;
-            }
-            ul += '</ul>';
-
-            const teamList = document.getElementById('teamList');
-            const div = document.createElement('div');
-            div.className = 'team-member';
-            div.style.border = 'none';
-            div.innerHTML = `<h3>${year}</h3>${ul}`;
-            teamList.prepend(div);
-
-            saveAppointments();
-
-            this.reset();
-            document.getElementById('cadetFields').innerHTML = `
-                <div class="cadet-entry" style="margin-bottom: 8px;">
-                <input type="text" name="cadetName[]" placeholder="Cadet Name" required>
-                <input type="text" name="cadetRank[]" placeholder="Rank" required>
-                </div>
-            `;
-            });
-
-            // Add to addCadetField to save after adding/removing
-            function addCadetField() {
-            const cadetFields = document.getElementById('cadetFields');
-            const div = document.createElement('div');
-            div.className = 'cadet-entry';
-            div.style.marginBottom = '8px';
-            div.innerHTML = `
-                <input type="text" name="cadetName[]" placeholder="Cadet Name" required>
-                <input type="text" name="cadetRank[]" placeholder="Rank" required>
-                <button type="button" onclick="this.parentElement.remove()">Remove</button>
-            `;
-            cadetFields.appendChild(div);
-            }
-
-            // Load appointments on page load
-            window.addEventListener('DOMContentLoaded', loadAppointments);
-        </script>
+        
+        
         <div class="team-list" id="teamList">
             <a href="team_details_2025.html" style="text-decoration: none; border: none;">
                 <div class="team-member" style="border: none;">
@@ -209,48 +97,7 @@
         </div>
         </section>
     </main>
-    <script>
-        function addCadetField() {
-            const cadetFields = document.getElementById('cadetFields');
-            const div = document.createElement('div');
-            div.className = 'cadet-entry';
-            div.style.marginBottom = '8px';
-            div.innerHTML = `
-                <input type="text" name="cadetName[]" placeholder="Cadet Name" required>
-                <input type="text" name="cadetRank[]" placeholder="Rank" required>
-                <button type="button" onclick="this.parentElement.remove()">Remove</button>
-            `;
-            cadetFields.appendChild(div);
-        }
-
-        document.getElementById('addAppointmentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const year = document.getElementById('year').value;
-            const names = Array.from(document.getElementsByName('cadetName[]')).map(input => input.value);
-            const ranks = Array.from(document.getElementsByName('cadetRank[]')).map(input => input.value);
-
-            let ul = '<ul>';
-            for (let i = 0; i < names.length; i++) {
-                ul += `<li><strong>Cadet Name:</strong> ${names[i]}<br><strong>Rank:</strong> ${ranks[i]}</li>`;
-            }
-            ul += '</ul>';
-
-            const teamList = document.getElementById('teamList');
-            const div = document.createElement('div');
-            div.className = 'team-member';
-            div.style.border = 'none';
-            div.innerHTML = `<h3>${year}</h3>${ul}`;
-            teamList.prepend(div);
-
-            this.reset();
-            document.getElementById('cadetFields').innerHTML = `
-                <div class="cadet-entry" style="margin-bottom: 8px;">
-                    <input type="text" name="cadetName[]" placeholder="Cadet Name" required>
-                    <input type="text" name="cadetRank[]" placeholder="Rank" required>
-                </div>
-            `;
-        });
-    </script>
+    
 </body>
 
 </html>
